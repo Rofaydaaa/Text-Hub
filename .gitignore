@@ -1,0 +1,15 @@
+# Ignore .txt files
+*.txt
+
+# Flask-related files
+*.cfg
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+instance/
+*.pyc
+*.pyo
+*.db
+*.sqlite
+*.log
