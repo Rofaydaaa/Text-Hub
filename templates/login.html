@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+{% block head %}
+    <!-- CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+{% endblock head %}
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="content-section">
+                    <form method="POST" action="">
+                        {{ form.hidden_tag() }}
+                        <fieldset class="form-group">
+                            <legend class="border-bottom mb-4">Log In</legend>
+                            <div class="form-group mb-4">
+                                {{ form.username.label(class="form-control-label") }}
+                                {% if form.username.errors %}
+                                    {{ form.username(class="form-control form-control-sm is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.username.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.username(class="form-control form-control-sm") }}
+                                {% endif %}
+                            </div>
+                            <div class="form-group mb-4">
+                                {{ form.password.label(class="form-control-label") }}
+                                {% if form.password.errors %}
+                                    {{ form.password(class="form-control form-control-sm is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.password.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ form.password(class="form-control form-control-sm") }}
+                                {% endif %}
+                            </div>
+                            <div class="form-check mb-4">
+                                {{ form.remember(class="form-check-input") }}
+                                {{ form.remember.label(class="form-check-label") }}
+                            </div>
+                        </fieldset>
+                        <div class="form-group d-flex justify-content-between align-items-center">
+                            {{ form.submit(class="btn btn-primary") }}
+                            <small class="text-muted">
+                                <a href="#">Forgot Password?</a>
+                            </small>
+                        </div>
+                    </form>
+                </div>
+                <div class="border-top pt-3">
+                    <small class="text-muted">
+                        Need An Account? <a class="ml-2" href="{{ url_for('register') }}">Sign Up Now</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
