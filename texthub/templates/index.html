@@ -12,10 +12,16 @@
                     <div class="text">
                         Your writing journey just got a whole lot simpler. TextHub, the ultimate companion for creators like you!
                     </div>
+                    {% if not current_user.is_authenticated %}
                     <div class="buttons">
-                        <a href="#" class="btn btn-primary">Sign Up</a>
+                        <a href="{{ url_for('register')}}" class="btn btn-primary">Sign Up</a>
                         <a href="#features" class="btn btn-outline-secondary ms-3" data-target="#features">Learn More</a>
                     </div>
+                    {% else %}
+                    <div class="buttons">
+                        <a href="#" class="btn btn-primary">Go To My Editor</a>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="col-md-6">
                     <img src="/static/img/hero-image.png" alt="hero-img">
