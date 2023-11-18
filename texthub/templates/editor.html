@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block head %}
+    <!-- CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/editor.css') }}">
+{% endblock head %}
+{% block content %}
+    {{ ckeditor.load() }}
+    <div class="content-section mt-4">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <legend class="border-bottom mb-4"><b>Write your insights and share it now on your selected platforms</b></legend>
+                <div class="form-group mb-4">
+                    {{ form.title.label(class="form-control-label mb-2") }}
+                    {{ form.title(class="form-control form-control-md mb-2") }}
+                </div>
+                <div class="form-group mb-4">
+                    {{ form.body.label(class="form-control-label mb-2") }}
+                    {% if form.body.errors %}
+                    {{ form.body(class="form-control form-control-sm is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.body.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.body(class="form-control form-control-md mb-2") }}
+                    {% endif %}
+                </div>
+            </fieldset>
+            <div class="form-group text-end">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+        {{ ckeditor.load() }}
+        {{ ckeditor.config(name='body') }}
+    </div>
+{% endblock content %}
