@@ -1,0 +1,53 @@
+.content-section {
+    background: var(--white);
+    padding: 10px 20px;
+    border: 1px solid var(--gray-2);
+    border-radius: 3px;
+    margin-bottom: 20px;
+    font-weight: 400;
+}
+
+legend {
+    font-weight: bold;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.btn-primary,
+.btn-outline-secondary{
+    font-size: 12px;
+    padding: 5px 10px;
+}
+
+@media screen and (max-width: 1024px) {
+    .fa-user {
+        font-size: 4rem;
+    }
+    body {
+        font-size: 16px;
+    }
+    h2 {
+        font-size: 20px;
+    }
+    legend {
+        font-size: 18px; 
+    }
+}
+
+@media (max-width: 600px) {
+    .fa-user {
+        font-size: 3rem;
+    }
+    body {
+        font-size: 14px;
+    }
+    h2 {
+        font-size: 18px;
+    }
+    legend {
+        font-size: 16px; 
+    }
+}

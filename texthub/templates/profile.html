@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+{% block head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" />
+    <!-- CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock head %}
+{% block content %}
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="content-section">
+                    <div class="row">
+                        <div class="col-md-3 col-2 text-center mt-4">
+                            <i class="fas fa-user fa-5x pb-2"></i>
+                        </div>
+                        <div class="col-md-9 col-10 align-self-end">
+                            <legend class="border-bottom pb-2">Account Info</legend>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-3 col-2">
+                        </div>
+                        <div class="col-md-9 col-10">
+                            <form method="POST" action="">
+                                {{ form.hidden_tag() }}
+                                <fieldset class="form-group">
+                                    <h2 class="account-heading">
+                                        <span id="usernameText">{{ current_user.username }}</span>
+                                        <i id="usernameEditIcon" class="fas fa-edit" onclick="enableEditMode('Username')"></i>
+                                    </h2>
+                                    {% if form.username.errors %}
+                                        <div id="editUsername" class="form-group mb-4">
+                                    {% else %}
+                                        <div id="editUsername" class="form-group mb-4" style="display: none;">
+                                    {% endif %}
+                                        <b>{{ form.username.label(class="form-control-label mb-2") }}</b>
+                                        {% if form.username.errors %}
+                                            {{ form.username(class="form-control form-control-sm is-invalid mb-2") }}
+                                            <div class="invalid-feedback">
+                                                {% for error in form.username.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ form.username(class="form-control form-control-md mb-2") }}
+                                        {% endif %}
+                                        <div class="mt-2 text-end">
+                                            {{ form.submit(class="btn btn-primary") }}
+                                            <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit('Username')">Cancel</button>
+                                        </div>
+                                    </div>
+                                    <p class="text-secondary">
+                                        <span id="emailText">{{ current_user.email }}</span>
+                                        <i id="emailEditIcon" class="fas fa-edit" onclick="enableEditMode('Email')"></i>
+                                    </p>
+                                    {% if form.email.errors %}
+                                        <div id="editEmail" class="form-group mb-4">
+                                    {% else %}
+                                        <div id="editEmail" class="form-group mb-4" style="display: none;">
+                                    {% endif %}
+                                        <b>{{ form.email.label(class="form-control-label mb-2") }}</b>
+                                        {% if form.email.errors %}
+                                            {{ form.email(class="form-control form-control-sm is-invalid mb-2") }}
+                                            <div class="invalid-feedback"> 
+                                                {% for error in form.email.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        {% else %}
+                                            {{ form.email(class="form-control form-control-sm mb-2") }}
+                                        {% endif %}
+                                        <div class="mt-2 text-end">
+                                            {{ form.submit(class="btn btn-primary") }}
+                                            <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit('Email')">Cancel</button>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var edit_mode_username = false;
+        var edit_mode_email = false;
+
+        function setEditMode(field, value) {
+            if (field === 'Username') {
+                edit_mode_username = value;
+            } else if (field === 'Email') {
+                edit_mode_email = value;
+            }
+        }
+
+        function enableEditMode(field) {
+            setEditMode(field, true);
+            toggleEditMode(field);
+        }
+
+        function saveChanges(field) {
+            setEditMode(field, false);
+            toggleEditMode(field);
+        }
+
+        function cancelEdit(field) {
+            window.location.href = "{{ url_for('profile') }}";
+        }
+
+        function toggleEditMode(field) {
+            var textView = document.getElementById(field.toLowerCase() + 'Text');
+            var editMode = document.getElementById('edit' + field);
+            var editButton = document.getElementById(field.toLowerCase() + 'EditIcon');
+
+            if (field === 'Username' && edit_mode_username) {
+                textView.style.display = 'none';
+                editMode.style.display = 'block';
+                editButton.style.display = 'none';
+            } else if (field === 'Email' && edit_mode_email) {
+                textView.style.display = 'none';
+                editMode.style.display = 'block';
+                editButton.style.display = 'none';
+            } else {
+                textView.style.display = 'inline';
+                editMode.style.display = 'none';
+                editButton.style.display = 'inline';
+            }
+        }
+    </script>
+{% endblock content %}
