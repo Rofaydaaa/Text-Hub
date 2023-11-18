@@ -1,6 +1,6 @@
 from flask import render_template, url_for, flash, redirect, request
 from texthub import app, db, bcrypt
-from texthub.forms import RegistrationForm, LoginForm
+from texthub.forms import RegistrationForm, LoginForm, PostForm, UpdateAccountForm
 from texthub.models import User
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -43,7 +43,25 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
-@app.route("/profile")
+@app.route("/profile", methods=['GET', 'POST'])
 @login_required
 def profile():
-    return render_template('profile.html', title='Profile')
+    form = UpdateAccountForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash(f'Your account has been updated', 'success')
+        return redirect(url_for('profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+    return render_template('profile.html', title='Profile', form=form)
+
+@app.route("/editor", methods=['GET', 'POST'])
+@login_required
+def editor():
+    form = PostForm()
+    if form.validate_on_submit():
+        flash(f'Posted successfully', 'success')
+    return render_template('editor.html', title='Editor', form=form)
