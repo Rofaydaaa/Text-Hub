@@ -1,14 +1,19 @@
 from flask import Flask
+from flask_restx import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_ckeditor import CKEditor
 
 app = Flask(__name__)
+# api = Api(app, version='1.0', title='TextHub API', description='API documentation for posting to platforms with the app')
+
 app.config['SECRET_KEY'] = 'Random charachter'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 bcrypt = Bcrypt(app)
 

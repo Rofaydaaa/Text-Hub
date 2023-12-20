@@ -20,6 +20,7 @@ body {
 }
 
 .btn-primary,
+.btn-secondary,
 .btn-outline-secondary{
     padding: 12px 20px;
 }

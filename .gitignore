@@ -8,8 +8,18 @@ __pycache__/
 *.pyo
 *.pyd
 instance/
+migrations/
 *.pyc
 *.pyo
 *.db
 *.sqlite
 *.log
+
+# Vscode
+.vscode
+
+#.pem
+*.pem
+
+# Any test Files
+test.*

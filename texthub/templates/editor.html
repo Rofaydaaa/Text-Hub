@@ -1,15 +1,16 @@
 {% extends "layout.html" %}
 {% block head %}
-    <!-- CSS file -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/editor.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
 {% endblock head %}
 {% block content %}
     {{ ckeditor.load() }}
-    <div class="content-section mt-4">
+    <div class="content-section mt-4 mb-4">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-4"><b>Write your insights and share it now on your selected platforms</b></legend>
+                <legend class="border-bottom mb-4">
+                    <b>{% if edit_mode %}Edit your post{% else %}Write your insights and share it now on your selected platforms{% endif %}</b>
+                </legend>
                 <div class="form-group mb-4">
                     {{ form.title.label(class="form-control-label mb-2") }}
                     {{ form.title(class="form-control form-control-md mb-2") }}
@@ -27,9 +28,23 @@
                         {{ form.body(class="form-control form-control-md mb-2") }}
                     {% endif %}
                 </div>
+                <div class="form-group mb-4">
+                    <div class="form-check form-switch">
+                        <i class="fab fa-facebook fa text-primary"></i>
+                        {{ form.select_fb.label(class="form-check-label") }}
+                        {{ form.select_fb(class="form-check-input", disabled=edit_mode) }}
+                    </div>
+                    <div class="form-check form-switch">
+                        <i class="fab fa-twitter fa text-primary"></i>
+                        {{ form.select_twitter.label(class="form-check-label") }}
+                        {{ form.select_twitter(class="form-check-input", disabled=edit_mode) }}
+                    </div>
+                </div>
             </fieldset>
             <div class="form-group text-end">
-                {{ form.submit(class="btn btn-primary") }}
+                {{ form.submit(class="btn btn-primary", value="Update Post" if edit_mode else "Post") }}
+                {{ form.archive(class="btn btn-primary") }}
+                <a href="{{ url_for('profile') }}" class="btn btn-secondary">Configure Platforms</a>
             </div>
         </form>
         {{ ckeditor.load() }}

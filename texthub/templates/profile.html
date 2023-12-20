@@ -22,30 +22,30 @@
                         </div>
                         <div class="col-md-9 col-10">
                             <form method="POST" action="">
-                                {{ form.hidden_tag() }}
+                                {{ form_name.hidden_tag() }}
                                 <fieldset class="form-group">
                                     <h2 class="account-heading">
                                         <span id="usernameText">{{ current_user.username }}</span>
                                         <i id="usernameEditIcon" class="fas fa-edit" onclick="enableEditMode('Username')"></i>
                                     </h2>
-                                    {% if form.username.errors %}
+                                    {% if form_name.username.errors %}
                                         <div id="editUsername" class="form-group mb-4">
                                     {% else %}
                                         <div id="editUsername" class="form-group mb-4" style="display: none;">
                                     {% endif %}
-                                        <b>{{ form.username.label(class="form-control-label mb-2") }}</b>
-                                        {% if form.username.errors %}
-                                            {{ form.username(class="form-control form-control-sm is-invalid mb-2") }}
+                                        <b>{{ form_name.username.label(class="form-control-label mb-2") }}</b>
+                                        {% if form_name.username.errors %}
+                                            {{ form_name.username(class="form-control form-control-sm is-invalid mb-2") }}
                                             <div class="invalid-feedback">
-                                                {% for error in form.username.errors %}
+                                                {% for error in form_name.username.errors %}
                                                     <span>{{ error }}</span>
                                                 {% endfor %}
                                             </div>
                                         {% else %}
-                                            {{ form.username(class="form-control form-control-md mb-2") }}
+                                            {{ form_name.username(class="form-control form-control-md mb-2") }}
                                         {% endif %}
                                         <div class="mt-2 text-end">
-                                            {{ form.submit(class="btn btn-primary") }}
+                                            {{ form_name.submit(class="btn btn-primary") }}
                                             <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit('Username')">Cancel</button>
                                         </div>
                                     </div>
@@ -53,26 +53,88 @@
                                         <span id="emailText">{{ current_user.email }}</span>
                                         <i id="emailEditIcon" class="fas fa-edit" onclick="enableEditMode('Email')"></i>
                                     </p>
-                                    {% if form.email.errors %}
+                                    {% if form_name.email.errors %}
                                         <div id="editEmail" class="form-group mb-4">
                                     {% else %}
                                         <div id="editEmail" class="form-group mb-4" style="display: none;">
                                     {% endif %}
-                                        <b>{{ form.email.label(class="form-control-label mb-2") }}</b>
-                                        {% if form.email.errors %}
-                                            {{ form.email(class="form-control form-control-sm is-invalid mb-2") }}
+                                        <b>{{ form_name.email.label(class="form-control-label mb-2") }}</b>
+                                        {% if form_name.email.errors %}
+                                            {{ form_name.email(class="form-control form-control-sm is-invalid mb-2") }}
                                             <div class="invalid-feedback"> 
-                                                {% for error in form.email.errors %}
+                                                {% for error in form_name.email.errors %}
                                                     <span>{{ error }}</span>
                                                 {% endfor %}
                                             </div>
                                         {% else %}
-                                            {{ form.email(class="form-control form-control-sm mb-2") }}
+                                            {{ form_name.email(class="form-control form-control-sm mb-2") }}
                                         {% endif %}
                                         <div class="mt-2 text-end">
-                                            {{ form.submit(class="btn btn-primary") }}
+                                            {{ form_name.submit(class="btn btn-primary") }}
                                             <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit('Email')">Cancel</button>
                                         </div>
+                                    </div>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-md-3 col-2">
+                        </div>
+                        <div class="col-md-9 col-10">
+                            <legend class="border-bottom pb-2">Platforms Access</legend>
+                            <form method="POST" action="" class="pt-4">
+                                {{ form_platform.hidden_tag() }}
+                                <fieldset class="form-group">
+                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                        <i class="fab fa-facebook fa-3x text-primary"></i>
+                                        <div style="margin-right: 30px; margin-left: 15px;" class="form-check form-switch">
+                                            {{ form_platform.select_fb(class="form-check-input", id="select-platform-fb") }}
+                                            {{ form_platform.select_fb.label(class="form-check-label small", for="select-platform-fb") }}
+                                        </div>
+
+                                        <!-- Input field for Facebook token -->
+                                        {% if form_platform.select_fb.data %}
+                                            <div id="token-container-fb" style="display: block;">
+                                        {% else %}
+                                            <div id="token-container-fb" style="display: none;">
+                                        {% endif %}
+                                            {{ form_platform.token_fb.label(class="form-label small") }}
+                                            {{ form_platform.token_fb(class="form-control form-control-sm") }}
+
+                                            {{ form_platform.page_id_fb.label(class="form-label small") }}
+                                            {{ form_platform.page_id_fb(class="form-control form-control-sm") }}
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                        <i class="fab fa-twitter fa-3x text-primary"></i>
+                                        <div style="margin-right: 30px;margin-left: 15px;" class="form-check form-switch">
+                                            {{ form_platform.select_twitter(class="form-check-input mr-2", id="select-platform-twitter") }}
+                                            {{ form_platform.select_twitter.label(class="form-check-label small", for="select-platform-twitter") }}
+                                        </div>
+
+                                        <!-- Input field for Twitter token -->
+                                        {% if form_platform.select_twitter.data %}
+                                            <div id="token-container-twitter" style="display: block;">
+                                        {% else %}
+                                            <div id="token-container-twitter" style="display: none;">
+                                        {% endif %}
+                                            {{ form_platform.consumer_key_twitter.label(class="form-label small") }}
+                                            {{ form_platform.consumer_key_twitter(class="form-control form-control-sm") }}
+
+                                            {{ form_platform.consumer_secret_twitter.label(class="form-label small") }}
+                                            {{ form_platform.consumer_secret_twitter(class="form-control form-control-sm") }}
+                                            
+                                            {{ form_platform.access_token_twitter.label(class="form-label small") }}
+                                            {{ form_platform.access_token_twitter(class="form-control form-control-sm") }}
+                                            
+                                            {{ form_platform.access_secret_twitter.label(class="form-label small") }}
+                                            {{ form_platform.access_secret_twitter(class="form-control form-cosmallntrol-sm") }}
+                                        </div>
+                                    </div>
+                                    <div class="text-end" style="margin-right: 30px;">
+                                        {{ form_platform.submit(class="btn btn-primary") }}
                                     </div>
                                 </fieldset>
                             </form>
@@ -127,5 +189,20 @@
                 editButton.style.display = 'inline';
             }
         }
-    </script>
+        function setupTokenContainer(selectId, tokenContainerId) {
+            let selectInput = document.getElementById(selectId);
+            let tokenContainer = document.getElementById(tokenContainerId);
+
+            // Set initial display based on the checkbox state
+            tokenContainer.style.display = selectInput.checked ? 'block' : 'none';
+
+            selectInput.addEventListener('change', function () {
+                // Show the token container if the checkbox is checked, hide it otherwise
+                tokenContainer.style.display = this.checked ? 'block' : 'none';
+            });
+        }
+
+        setupTokenContainer('select-platform-fb', 'token-container-fb');
+        setupTokenContainer('select-platform-twitter', 'token-container-twitter');
+        </script>
 {% endblock content %}
