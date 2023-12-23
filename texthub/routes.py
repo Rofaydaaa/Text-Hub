@@ -184,8 +184,8 @@ def editor(post_id=None):
         for select_platform in form.platforms:
             select_platform.select.data = post.posted_on[select_platform['name'].data.lower()]
 
-        return render_template('editor.html', title='Editor', form=form, edit_mode=True, post_id=post_id)
-    return render_template('editor.html', title='Editor', form=form, edit_mode=False)
+        return render_template('editor.html', title='Editor', form=form, edit_mode=True, post_id=post_id, archived=archived)
+    return render_template('editor.html', title='Editor', form=form, edit_mode=False, archived=archived)
 
 @app.route("/posts", methods=['GET', 'POST'])
 @login_required
