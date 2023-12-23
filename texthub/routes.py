@@ -14,36 +14,6 @@ def update_user_account(form):
     current_user.email = form.email.data
     db.session.commit()
 
-# Sample resource for Swagger documentation
-# @api.route('/sample')
-# class SampleResource(Resource):
-#     def get(self):
-#         """Sample endpoint"""
-#    
-#      return {'message': 'Hello, Swagger!'}
-
-# platforms = ['facebook', 'twitter']
-
-# platform_post_functions = {
-#     'facebook': post_facebook,
-#     'twitter': post_twitter,
-# }
-
-# platform_delete_functions = {
-#     'facebook': delete_facebook,
-#     'twitter': delete_twitter,
-# }
-
-# platform_update_functions = {
-#     'facebook': update_facebook,
-#     'twitter': update_twitter,
-# }
-
-PLATFORM_MODELS = {
-    'facebook': FacebookPost,
-    'twitter': TwitterPost,
-}
-
 @app.route("/")
 @app.route("/index")
 def index():
