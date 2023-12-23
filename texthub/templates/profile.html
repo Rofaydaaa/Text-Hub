@@ -88,7 +88,7 @@
                                 <fieldset class="form-group">
                                     {% for platform_name, platform_form in form_platform.platform_forms.items() %}
                                         <div class="d-flex align-items-center justify-content-between mb-4">
-                                            <i class="fab fa-{{ platform_name }} fa-3x text-primary"></i>
+                                            <i class="fab fa-{{ platform_name }} fa-3x  {{ platform_colors.get(platform_name, '') }}"></i>
                                             <div style="margin-right: 30px; margin-left: 15px;" class="form-check form-switch">
                                                 {% set checkbox_id = "select-platform-" + platform_name %}
                                                 {{ platform_form.select(class="form-check-input", id=checkbox_id) }}
@@ -182,5 +182,8 @@
 
         setupTokenContainer('select-platform-facebook', 'token-container-facebook');
         setupTokenContainer('select-platform-twitter', 'token-container-twitter');
+        setupTokenContainer('select-platform-medium', 'token-container-medium');
+        setupTokenContainer('select-platform-dev', 'token-container-dev');
+        setupTokenContainer('select-platform-hashnode', 'token-container-hashnode');
         </script>
 {% endblock content %}

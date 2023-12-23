@@ -7,7 +7,15 @@ import requests
 import tweepy
 from texthub import db
 
-platform_names = ['Facebook', 'Twitter']
+platform_names = ['Facebook', 'Twitter', 'Medium', 'Dev']
+# Define the platform_colors dictionary
+platform_colors = {
+    'facebook': 'text-primary',
+    'twitter': 'text-primary',
+    'dev.to': 'text-black',
+    'medium': 'text-black',
+    'dev' : 'text-black',
+}
 
 class SocialMediaBase():
 
@@ -47,7 +55,9 @@ class Facebook(SocialMediaBase):
         db.session.commit()
         print("After commit:", current_user.token_faceboook, current_user.page_id_faceboook)
 
-    def post(post):
+    def post(title, body):
+
+        post = f"{title}\n{body}"
         access_token = current_user.token_facebook
         page_id = current_user.page_id_facebook
         url = f'https://graph.facebook.com/v18.0/{page_id}/feed'
@@ -140,12 +150,12 @@ class Twitter(SocialMediaBase):
         current_user.access_secret_twitter = None
         db.session.commit()
 
-    def post(tweet):
+    def post(title, body):
         client = tweepy.Client(
              consumer_key=current_user.consumer_key_twitter, consumer_secret=current_user.consumer_secret_twitter,
              access_token=current_user.access_token_twitter, access_token_secret=current_user.access_secret_twitter
          )
-
+        tweet = f"{title}\n{body}"
         response = client.create_tweet(text=tweet)
         return response.data['id']
 
@@ -197,3 +207,123 @@ class Twitter(SocialMediaBase):
             flash("Twitter is experiencing server issues, please try again later", 'danger')
 
         return False
+    
+class Medium(SocialMediaBase):
+
+    def set_fields(form):
+        current_user.integration_token_medium = form.integration_token_medium.data
+        db.session.commit()
+
+    def delete_platform_fields():
+        current_user.integration_token_medium = None
+        db.session.commit()
+    
+    def post(title, body):
+
+        # To get the user ID
+        url = 'https://api.medium.com/v1/me'
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {current_user.integration_token_medium}',
+        }
+        response = requests.get(url, headers=headers)
+        user_data = response.json()['data']
+        user_id = user_data.get('id')
+
+        # To post the article
+        url = f'https://api.medium.com/v1/users/{user_id}/posts'
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {current_user.integration_token_medium}',
+        }
+
+        data = {
+            'title': title,
+            'contentFormat': 'html',
+            'content': body,
+            'publishStatus': 'public',
+        }
+
+        response = requests.post(url, headers=headers, json=data)
+
+        return response.json().get('data').get('id')
+    
+    def delete_post(id):
+        flash("Medium doesn't allow to delete posts, you can only delete them manually from your account, but post is deleted from other platfrom supporting deletion", 'danger')
+    
+    def update_post():
+        pass
+    
+    def tokens_available():
+        if current_user.integration_token_medium is None:
+            flash("Can't post, please add your Medium integration token.", 'danger')
+            return False
+        return True
+
+    def tokens_validation():
+        url = 'https://api.medium.com/v1/me'
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {current_user.integration_token_medium}',
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            return True
+        else:
+            flash("Your Medium integration token is incorrect, go to your profile and update it", 'danger')
+            return False
+    
+class Dev(SocialMediaBase):
+
+    def set_fields(form):
+        current_user.integration_token_dev = form.integration_token_dev.data
+        db.session.commit()
+
+    def delete_platform_fields():
+        current_user.integration_token_dev = None
+        db.session.commit()
+    
+    def post(title, body):
+        url = 'https://dev.to/api/articles'
+        headers = {
+            'Content-Type': 'application/json',  
+            'api-key': current_user.integration_token_dev,
+        }
+
+        data = {
+            'article': {
+                'title': title,
+                'published': True,
+                'body_markdown': body,
+            },
+        }
+
+        response = requests.post(url, headers=headers, json=data)
+
+        return response.json().get('id')
+
+    def delete_post(id):
+        flash("Dev.to doesn't allow to delete posts, you can only delete them manually from your account, but post is deleted from other platfrom supporting deletion", 'danger')
+    
+    def update_post():
+        pass
+    
+    def tokens_available():
+        if current_user.integration_token_dev is None:
+            flash("Can't post, please add your Dev.to integration token.", 'danger')
+            return False
+        return True
+
+    def tokens_validation():
+        url = 'https://dev.to/api/articles/me'
+        headers = {
+            'Content-Type': 'application/json',
+            'api-key': current_user.integration_token_dev,
+        }
+
+        response = requests.get(url, headers=headers)
+
+        return response.status_code == 200
+    

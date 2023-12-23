@@ -18,6 +18,8 @@ class User(db.Model, UserMixin):
     consumer_secret_twitter = db.Column(db.String(255), nullable=True)
     access_token_twitter = db.Column(db.String(255), nullable=True)
     access_secret_twitter = db.Column(db.String(255), nullable=True)
+    integration_token_medium = db.Column(db.String(255), nullable=True)
+    integration_token_dev = db.Column(db.String(255), nullable=True)
 
     posts = db.relationship('Posts', backref='author', lazy=True, order_by="desc(Posts.date_posted)")
     archive_posts = db.relationship('ArchivePosts', backref='author', lazy=True, order_by="desc(ArchivePosts.date_archived)")
@@ -56,7 +58,7 @@ class FacebookPost(db.Model):
     platform_post_id = db.Column(db.String(255), nullable=False)
     
     def __repr__(self):
-        return f"FacebookPost('{self.facebook_post_id}')"
+        return f"FacebookPost('{self.platform_post_id}')"
 
 
 class TwitterPost(db.Model):
@@ -65,5 +67,20 @@ class TwitterPost(db.Model):
     platform_post_id = db.Column(db.String(255), nullable=False)
     
     def __repr__(self):
-        return f"TwitterPost('{self.twitter_post_id}')"
+        return f"TwitterPost('{self.platform_post_id}')"
     
+class MediumPost(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    original_post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+    platform_post_id = db.Column(db.String(255), nullable=False)
+    
+    def __repr__(self):
+        return f"MediumPost('{self.platform_post_id}')"
+    
+class DevPost(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    original_post_id = db.Column(db.Integer, db.ForeignKey('posts.id'), nullable=False)
+    platform_post_id = db.Column(db.String(255), nullable=False)
+    
+    def __repr__(self):
+        return f"DevPost('{self.platform_post_id}')"

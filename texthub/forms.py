@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationE
 from texthub.models import User
 from flask_ckeditor import CKEditorField
 from flask_login import current_user
-from texthub.utils import Twitter, Facebook, platform_names
+from texthub.utils import Twitter, Facebook, Medium, Dev, platform_names
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', 
@@ -57,6 +57,30 @@ class UpdateAccountForm(FlaskForm):
         self.username.data = current_user.username
         self.email.data = current_user.email
 
+class UpdatePlatforms(FlaskForm):
+    submit = SubmitField('Update platforms')
+    
+    def __init__(self, *args, **kwargs):
+        super(UpdatePlatforms, self).__init__(*args, **kwargs)
+        
+        # Create a dictionary to store instances of platform forms
+        self.platform_forms = {}
+        for platform_name in platform_names:
+            form_class = globals()[f'Update{platform_name}']
+            self.platform_forms[platform_name.lower()] = form_class(prefix=platform_name.lower())
+
+class PlatformForm(FlaskForm):
+    name = StringField('Name')
+    select = BooleanField('Select', default=False)
+
+class PostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    body = CKEditorField('Body', validators=[DataRequired("Your text is empty, can't post it!")])
+    submit = SubmitField('Post')
+    archive = SubmitField('Add to Archive')
+
+    platforms = FieldList(FormField(PlatformForm), min_entries=1)
+
 class UpdatePlatformBase(FlaskForm):
     
     def form_valid(self):
@@ -92,7 +116,7 @@ class UpdateFacebook(UpdatePlatformBase):
             Facebook.set_fields(self)
         else:
             Facebook.delete_platform_fields()
-            flash('Adding platform failed, enter your Facebook page data', 'danger')
+            flash('Adding platform failed, configure your Facebook page data', 'danger')
             return False
         return True
         
@@ -126,30 +150,57 @@ class UpdateTwitter(UpdatePlatformBase):
             Twitter.set_fields(self)
         else:
             Twitter.delete_platform_fields()
-            flash('Adding platform failed, enter your Twitter page data', 'danger')
+            flash('Adding platform failed, configure your Twitter page data', 'danger')
             return False
         return True
     
-class UpdatePlatforms(FlaskForm):
-    submit = SubmitField('Update platforms')
+class UpdateMedium(UpdatePlatformBase):
+    select = BooleanField('Medium')
+    integration_token_medium = StringField('Integration token')
     
-    def __init__(self, *args, **kwargs):
-        super(UpdatePlatforms, self).__init__(*args, **kwargs)
-        
-        # Create a dictionary to store instances of platform forms
-        self.platform_forms = {}
-        for platform_name in platform_names:
-            form_class = globals()[f'Update{platform_name}']
-            self.platform_forms[platform_name.lower()] = form_class(prefix=platform_name.lower())
+    def form_valid(self):
+        return all([
+            self.integration_token_medium.data != "",
+        ])
 
-class PlatformForm(FlaskForm):
-    name = StringField('Name')
-    select = BooleanField('Select', default=False)
+    def populate_forms_with_user_data(self):
+        if current_user.integration_token_medium is not None:
+            self.select.data = True
+            self.integration_token_medium.data = current_user.integration_token_medium
+    
+    def check_select(self):
+        if not self.select.data:
+            Medium.delete_platform_fields()
+        elif self.form_valid():
+            Medium.set_fields(self)
+        else:
+            Medium.delete_platform_fields()
+            flash('Adding platform failed, configure your Medium token', 'danger')
+            return False
+        return True
+    
+class UpdateDev(UpdatePlatformBase):
+    select = BooleanField('DEV.to')
+    integration_token_dev = StringField('Integration token')
+    
+    def form_valid(self):
+        return all([
+            self.integration_token_dev.data != "",
+        ])
 
-class PostForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
-    body = CKEditorField('Body', validators=[DataRequired("Your text is empty, can't post it!")])
-    submit = SubmitField('Post')
-    archive = SubmitField('Add to Archive')
-
-    platforms = FieldList(FormField(PlatformForm), min_entries=1)
+    def populate_forms_with_user_data(self):
+        if current_user.integration_token_dev is not None:
+            self.select.data = True
+            self.integration_token_dev.data = current_user.integration_token_dev
+    
+    def check_select(self):
+        if not self.select.data:
+            Dev.delete_platform_fields()
+        elif self.form_valid():
+            Dev.set_fields(self)
+        else:
+            Dev.delete_platform_fields()
+            flash('Adding platform failed, configure your Dev.to token', 'danger')
+            return False
+        return True
+    

@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 {% endblock head %}
 {% block content %}
     <div class="container mt-3 mb-5">
@@ -50,7 +51,7 @@
                                 <b>Posted on: </b>
                                 {% for platform, is_posted in post.posted_on.items() %}
                                     {% if is_posted %}
-                                        <i class="fab fa-{{ platform }}-square fa-lg text-primary"></i>
+                                        <i class="fab fa-{{ platform }} fa-lg {{ platform_colors.get(platform, '') }}"></i>
                                     {% endif %}
                                 {% endfor %}
                             </p>
@@ -115,7 +116,7 @@
                                     <b>Posted on: </b> 
                                     {% for platform, is_posted in post.posted_on.items() %}
                                         {% if is_posted %}
-                                            <i class="fab fa-{{ platform }}-square fa-lg text-primary"></i>
+                                        <i class="fab fa-{{ platform }} fa-lg {{ platform_colors.get(platform, '') }}"></i>
                                         {% endif %}
                                     {% endfor %}
                                 </p>

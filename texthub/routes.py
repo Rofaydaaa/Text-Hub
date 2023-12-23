@@ -1,12 +1,10 @@
 from flask import render_template, url_for, flash, redirect, request
-from flask_restx import Api, Resource
 from texthub import app, db, bcrypt
 from texthub.forms import RegistrationForm, LoginForm, PostForm, UpdateAccountForm, UpdatePlatforms
-from texthub.models import User, Posts, ArchivePosts, FacebookPost, TwitterPost
+from texthub.models import User, Posts, ArchivePosts, FacebookPost, TwitterPost, MediumPost, DevPost
 from flask_login import login_user, current_user, logout_user, login_required
-import requests, tweepy
 from datetime import datetime
-from texthub.utils import Twitter, Facebook, platform_names
+from texthub.utils import Twitter, Facebook, Medium, Dev, platform_names, platform_colors
 
 
 def update_user_account(form):
@@ -78,7 +76,7 @@ def profile():
         for platform_form in form_platform.platform_forms.values():
             platform_form.populate_forms_with_user_data()
     
-    return render_template('profile.html', title='Profile', form_name=form_name, form_platform=form_platform)
+    return render_template('profile.html', title='Profile', form_name=form_name, form_platform=form_platform, platform_colors=platform_colors)
 
 @app.route("/editor/<int:post_id>", methods=['GET', 'POST'])
 @app.route("/editor", methods=['GET', 'POST'])
@@ -117,10 +115,9 @@ def editor(post_id=None):
                         user_id=current_user.id,
                         posted_on=posting_status
                     )
-                    message = form.title.data + "\n" + form.body.data
                     for platform in selected_platforms:
                         platform_class = globals()[f'{platform}']
-                        post_ids[platform] = platform_class.post(message)
+                        post_ids[platform] = platform_class.post(form.title.data, form.body.data)
 
                     db.session.add(post)
                     db.session.commit()
@@ -184,8 +181,8 @@ def editor(post_id=None):
         for select_platform in form.platforms:
             select_platform.select.data = post.posted_on[select_platform['name'].data.lower()]
 
-        return render_template('editor.html', title='Editor', form=form, edit_mode=True, post_id=post_id, archived=archived)
-    return render_template('editor.html', title='Editor', form=form, edit_mode=False, archived=archived)
+        return render_template('editor.html', title='Editor', form=form, edit_mode=True, post_id=post_id, archived=archived, platform_colors=platform_colors)
+    return render_template('editor.html', title='Editor', form=form, edit_mode=False, archived=archived, platform_colors=platform_colors)
 
 @app.route("/posts", methods=['GET', 'POST'])
 @login_required
@@ -197,7 +194,7 @@ def posts():
     # Filter posts based on the 'posted_on' field for each platform
     filtered_posts = {platform.lower(): [post for post in all_posts if post.posted_on.get(platform.lower())] for platform in platform_names}
     
-    return render_template("posts.html", all_posts=all_posts, archive_posts=archive_posts, filtered_posts=filtered_posts, platform_names=platform_names )
+    return render_template("posts.html", all_posts=all_posts, archive_posts=archive_posts, filtered_posts=filtered_posts, platform_names=platform_names, platform_colors=platform_colors )
 
 @app.route("/delete_post", methods=['POST'])
 @login_required
