@@ -67,69 +67,7 @@ class UpdatePlatformBase(FlaskForm):
     
     def check_select(self):
         raise NotImplementedError("Subclasses must implement this method.")
-
-class UpdateFacebook(UpdatePlatformBase):
-    select = BooleanField('Facebook')
-    token_facebook = StringField('Facebook Page Token')
-    page_id_facebook = StringField('Facebook Page ID')
-
-    def form_valid(self):
-        return all([
-            self.token_facebook.data != "",
-            self.page_id_facebook.data != "",
-        ])
-    
-    def populate_forms_with_user_data(self):
-        if current_user.token_facebook is not None:
-            self.select.data = True
-            self.token_facebook.data = current_user.token_facebook
-            self.page_id_facebook.data = current_user.page_id_facebook
-    
-    def check_select(self):
-        if not self.select.data:
-            Facebook.delete_platform_fields()
-        elif self.form_valid():
-            Facebook.set_fields(self)
-        else:
-            Facebook.delete_platform_fields()
-            flash('Adding platform failed, enter your Facebook page data', 'danger')
-            return False
-        return True
-        
-class UpdateTwitter(UpdatePlatformBase):
-    select = BooleanField('Twitter')
-    consumer_key_twitter = StringField('Consumer Key')
-    consumer_secret_twitter = StringField('Consumer Secret')
-    access_token_twitter = StringField('Access Token')
-    access_secret_twitter = StringField('Access Secret')
-    
-    def form_valid(self):
-        return all([
-            self.consumer_key_twitter.data != "",
-            self.consumer_secret_twitter.data != "",
-            self.access_token_twitter.data != "",
-            self.access_secret_twitter.data != ""
-        ])
-
-    def populate_forms_with_user_data(self):
-        if current_user.consumer_key_twitter is not None:
-            self.select.data = True
-            self.consumer_key_twitter.data = current_user.consumer_key_twitter
-            self.consumer_secret_twitter.data = current_user.consumer_secret_twitter
-            self.access_token_twitter.data = current_user.access_token_twitter
-            self.access_secret_twitter.data = current_user.access_secret_twitter
-    
-    def check_select(self):
-        if not self.select.data:
-            Twitter.delete_platform_fields()
-        elif self.form_valid():
-            Twitter.set_fields(self)
-        else:
-            Twitter.delete_platform_fields()
-            flash('Adding platform failed, enter your Twitter page data', 'danger')
-            return False
-        return True
-    
+ 
 class UpdatePlatforms(FlaskForm):
     submit = SubmitField('Update platforms')
     
