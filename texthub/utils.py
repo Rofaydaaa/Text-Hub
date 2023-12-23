@@ -149,7 +149,7 @@ class Twitter(SocialMediaBase):
         response = client.create_tweet(text=tweet)
         return response.data['id']
 
-    def delete_post():
+    def delete_post(id):
         client = tweepy.Client(
              consumer_key=current_user.consumer_key_twitter, consumer_secret=current_user.consumer_secret_twitter,
              access_token=current_user.access_token_twitter, access_token_secret=current_user.access_secret_twitter

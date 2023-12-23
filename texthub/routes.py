@@ -172,9 +172,10 @@ def editor(post_id=None):
                 if success:
                     for platform in update_platforms:
                         platform_model = globals()[f'{platform}Post']
+                        platform_class = globals()[f'{platform}']
                         platform_post = platform_model.query.filter_by(original_post_id=post_id).first()   
                         #uncomment this line when update functions are supporetd
-                        #platform_update_functions[platform](platform_post.platform_post_id, form)
+                        #platform_class.update_post(platform_post.platform_post_id, form)
                     post = Posts.query.get_or_404(post_id)
                     post.title = form.title.data
                     post.body = form.body.data
@@ -242,9 +243,10 @@ def delete_post():
         
         if success: 
             for platform in deleted_platforms:
-                platform_model = PLATFORM_MODELS[platform]
+                platform_model = globals()[f'{platform}Post']
+                platform_class = globals()[f'{platform}']
                 platform_post = platform_model.query.filter_by(original_post_id=post_id).first()   
-                platform_delete_functions[platform](platform_post.platform_post_id)
+                platform_class.delete_post(platform_post.platform_post_id)
                 db.session.delete(platform_post)
         else:
             flash('An error occurred while deleting the post.', 'danger')
