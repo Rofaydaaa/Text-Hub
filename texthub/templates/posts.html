@@ -40,11 +40,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="truncated-text" data-post-id="{{ post.id }}">
-                                {{ post.body[:20] | safe }}...
-                                <a href="#" class="seeMoreLink" data-post-id="{{ post.id }}"><small>see more</small></a>
-                            </div>
-                            <div class="d-none full-text" data-post-id="{{ post.id }}">
+                            <div class="full-text" data-post-id="{{ post.id }}">
                                 {{ post.body | safe }}
                             </div>
                             <p class="card-text">
@@ -78,11 +74,7 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="truncated-text" data-post-id="{{ post.id }}">
-                                {{ post.body[:20] | safe }}...
-                                <a href="#" class="seeMoreLink" data-post-id="{{ post.id }}"><small>see more</small></a>
-                            </div>
-                            <div class="d-none full-text" data-post-id="{{ post.id }}">
+                            <div class="full-text" data-post-id="{{ post.id }}">
                                 {{ post.body | safe }}
                             </div>
                             <p class="card-text"><small><b>Added on: </b>{{ post.date_archived.strftime('%Y-%m-%d %H:%M:%S') }}</small></p>
@@ -105,11 +97,7 @@
                                         </a>
                                     </div>
                                 </div>
-                                <div class="truncated-text" data-post-id="{{ post.id }}">
-                                    {{ post.body[:20] | safe }}...
-                                    <a href="#" class="seeMoreLink" data-post-id="{{ post.id }}"><small>see more</small></a>
-                                </div>
-                                <div class="d-none full-text" data-post-id="{{ post.id }}">
+                                <div class="full-text" data-post-id="{{ post.id }}">
                                     {{ post.body | safe }}
                                 </div>
                                 <p class="card-text">
@@ -197,11 +185,6 @@
                 // Set the value of the hidden input in the form
                 $('#post_id').val(postId);
                 $('#post_type').val(postType);
-            });
-            $('.seeMoreLink').click(function (e) {
-                var postId = $(this).data('post-id');
-                $('.truncated-text[data-post-id="' + postId + '"]').toggleClass('d-none');
-                $('.full-text[data-post-id="' + postId + '"]').toggleClass('d-none');
             });
         });
     </script>    
