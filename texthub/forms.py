@@ -6,7 +6,6 @@ from texthub.models import User
 from flask_ckeditor import CKEditorField
 from flask_login import current_user
 from texthub.utils import Twitter, Facebook, platform_names
-from wtforms.widgets import HiddenInput
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username', 
