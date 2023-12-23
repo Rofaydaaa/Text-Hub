@@ -5,15 +5,17 @@ from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_ckeditor import CKEditor
+from os import environ
 
 app = Flask(__name__)
-# api = Api(app, version='1.0', title='TextHub API', description='API documentation for posting to platforms with the app')
+
 
 app.config['SECRET_KEY'] = 'Random charachter'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tracking as it can cause performance issues
 
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+
 
 bcrypt = Bcrypt(app)
 
