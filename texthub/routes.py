@@ -6,6 +6,13 @@ from texthub.models import User, Posts, ArchivePosts, FacebookPost, TwitterPost
 from flask_login import login_user, current_user, logout_user, login_required
 import requests, tweepy
 from datetime import datetime
+from texthub.utils import Twitter, Facebook, platform_names
+
+
+def update_user_account(form):
+    current_user.username = form.username.data
+    current_user.email = form.email.data
+    db.session.commit()
 
 # Sample resource for Swagger documentation
 # @api.route('/sample')
@@ -15,96 +22,25 @@ from datetime import datetime
 #    
 #      return {'message': 'Hello, Swagger!'}
 
-def update_user_account(form):
-    current_user.username = form.username.data
-    current_user.email = form.email.data
-    db.session.commit()
+# platforms = ['facebook', 'twitter']
 
-def update_platforms(form):
-    success = True
+# platform_post_functions = {
+#     'facebook': post_facebook,
+#     'twitter': post_twitter,
+# }
 
-    if not form.select_fb.data:
-        form.reset_fb_fields()
-    elif form.form_fb_fields_are_valid():
-        form.set_fb_fields()
-    else:
-        success = False
-        form.reset_fb_fields()
-        flash(f'Adding platform failed, enter your facebook page access token', 'danger')
+# platform_delete_functions = {
+#     'facebook': delete_facebook,
+#     'twitter': delete_twitter,
+# }
 
-    if not form.select_twitter.data:
-        form.reset_twitter_fields()
-    elif form.form_twitter_fields_are_valid():
-        form.set_twitter_fields()
-    else:
-        success = False
-        form.reset_twitter_fields()
-        flash(f'Adding platform failed, enter all twitter fields', 'danger')
-
-    db.session.commit()
-
-    if success:
-        flash(f'Platforms have been updated', 'success')
-
-def post_fb(post):
-    access_token = current_user.token_fb
-    page_id = current_user.page_id_fb
-    url = f'https://graph.facebook.com/v18.0/{page_id}/feed'
-    data = {'access_token': access_token, 'message': post}
-
-    r = requests.post(url, data=data)
-    return r.json()['id']
-
-def post_twitter(tweet):
-    client = tweepy.Client(
-         consumer_key=current_user.consumer_key_twitter, consumer_secret=current_user.consumer_secret_twitter,
-         access_token=current_user.access_token_twitter, access_token_secret=current_user.access_secret_twitter
-     )
-
-    response = client.create_tweet(text=tweet)
-    return response.data['id']
-
-def delete_fb(id):
-    access_token = current_user.token_fb
-
-    url = f'https://graph.facebook.com/v18.0/{id}'
-    data = {'access_token': access_token}
-
-    requests.delete(url, params=data)
-
-def delete_twitter(id):
-    client = tweepy.Client(
-         consumer_key=current_user.consumer_key_twitter, consumer_secret=current_user.consumer_secret_twitter,
-         access_token=current_user.access_token_twitter, access_token_secret=current_user.access_secret_twitter
-     )
-
-    client.delete_tweet(id)
-
-def update_fb(id, form):
-    pass
-
-def update_twitter(id, form):
-    pass
-
-platforms = ['fb', 'twitter']
-
-platform_post_functions = {
-    'fb': post_fb,
-    'twitter': post_twitter,
-}
-
-platform_delete_functions = {
-    'fb': delete_fb,
-    'twitter': delete_twitter,
-}
-
-platform_update_functions = {
-    'fb': update_fb,
-    'twitter': update_twitter,
-}
+# platform_update_functions = {
+#     'facebook': update_facebook,
+#     'twitter': update_twitter,
+# }
 
 PLATFORM_MODELS = {
-    'fb': FacebookPost,
+    'facebook': FacebookPost,
     'twitter': TwitterPost,
 }
 
@@ -159,13 +95,19 @@ def profile():
         return redirect(url_for('profile'))
     
     if form_platform.validate_on_submit():
-        update_platforms(form_platform)
+        success = True
+        for platform_form in form_platform.platform_forms.values():
+            if not platform_form.check_select():
+                success = False
+        if success:
+            flash(f'Platforms have been updated', 'success')
         return redirect(url_for('profile'))
     
-    elif request.method == 'GET':
+    if request.method == 'GET':
         form_name.populate_forms_with_user_data()
-        form_platform.populate_forms_with_user_data()
-        
+        for platform_form in form_platform.platform_forms.values():
+            platform_form.populate_forms_with_user_data()
+    
     return render_template('profile.html', title='Profile', form_name=form_name, form_platform=form_platform)
 
 @app.route("/editor/<int:post_id>", methods=['GET', 'POST'])
@@ -173,49 +115,48 @@ def profile():
 @login_required
 def editor(post_id=None):
 
-    form = PostForm()
+    form = PostForm(platforms=[{'name': platform} for platform in platform_names])
 
     archived = request.args.get('archived', default=False, type=bool)
     edited = request.args.get('edited', default=False, type=bool)
 
     if form.validate_on_submit():
         if form.submit.data:
-            # Check for Edit Mode
+            # Check for Edit Mode, if it wasn't submitted again during the edit mode
             if not edited:
                 success = True
                 selected_platforms = []
                 post_ids = {}
-                for platform in platforms:
-                    select_field = getattr(form, f'select_{platform}')
-
-                    if select_field.data:
-                        selected_platforms.append(platform)
-                        tokens_available = getattr(form, f'{platform}_tokens_available')
-                        validation_function = getattr(form, f'{platform}_tokens_validation')
-
-                        if not tokens_available() or not validation_function():
+                for platform_form in form.platforms:
+                    select_platform = platform_form['name'].data
+                    if platform_form.select.data:
+                        selected_platforms.append(select_platform)
+                        platform_class = globals()[f'{select_platform}']
+                        if not platform_class.tokens_available() or not platform_class.tokens_validation():
                             success = False
                 if not selected_platforms:
                     flash('Please select at least one platform, or add it to archive and post it later', 'danger')
                     success = False
 
                 if success:
+                    posting_status = {platform.lower(): (platform in selected_platforms) for platform in platform_names}
+                    
                     post = Posts(
                         title=form.title.data,
                         body=form.body.data,
-                        posted_on_fb=form.select_fb.data,
-                        posted_on_twitter=form.select_twitter.data,
-                        user_id=current_user.id
+                        user_id=current_user.id,
+                        posted_on=posting_status
                     )
                     message = form.title.data + "\n" + form.body.data
                     for platform in selected_platforms:
-                        post_ids[platform] = platform_post_functions[platform](message)
+                        platform_class = globals()[f'{platform}']
+                        post_ids[platform] = platform_class.post(message)
 
                     db.session.add(post)
                     db.session.commit()
 
                     for platform in selected_platforms:
-                        platform_model = PLATFORM_MODELS[platform]
+                        platform_model = globals()[f'{platform}Post']
                         platform_post = platform_model(
                             original_post_id=post.id,
                             platform_post_id=post_ids[platform]
@@ -230,9 +171,9 @@ def editor(post_id=None):
                 success, update_platforms = can_update_or_delete(post_id)
                 if success:
                     for platform in update_platforms:
-                        platform_model = PLATFORM_MODELS[platform]
+                        platform_model = globals()[f'{platform}Post']
                         platform_post = platform_model.query.filter_by(original_post_id=post_id).first()   
-                        #uncomment this line when updeate functions are supporetd
+                        #uncomment this line when update functions are supporetd
                         #platform_update_functions[platform](platform_post.platform_post_id, form)
                     post = Posts.query.get_or_404(post_id)
                     post.title = form.title.data
@@ -242,6 +183,7 @@ def editor(post_id=None):
                     flash(f'Updated successfully on our app only, not reflected on your platforms, updating feature is not supported now on your selected platforms', 'success')
                     return redirect(url_for('editor'))
         elif form.archive.data:
+            # If it wasn't an edited archived post
             if not edited:
                 post = ArchivePosts(
                         title=form.title.data,
@@ -268,8 +210,9 @@ def editor(post_id=None):
         post = Posts.query.get_or_404(post_id)
         form.title.data = post.title
         form.body.data = post.body
-        form.select_fb.data = post.posted_on_fb
-        form.select_twitter.data = post.posted_on_twitter
+        for select_platform in form.platforms:
+            select_platform.select.data = post.posted_on[select_platform['name'].data.lower()]
+
         return render_template('editor.html', title='Editor', form=form, edit_mode=True, post_id=post_id)
     return render_template('editor.html', title='Editor', form=form, edit_mode=False)
 
@@ -279,10 +222,11 @@ def posts():
 
     all_posts = current_user.posts
     archive_posts = current_user.archive_posts
-    fb_posts = Posts.query.filter_by(user_id=current_user.id, posted_on_fb=True).order_by(Posts.date_posted.desc()).all()
-    twitter_posts = Posts.query.filter_by(user_id=current_user.id, posted_on_twitter=True).order_by(Posts.date_posted.desc()).all()
-
-    return render_template("posts.html", all_posts=all_posts, archive_posts=archive_posts, fb_posts=fb_posts, twitter_posts=twitter_posts)
+    filtered_posts = {}
+    # Filter posts based on the 'posted_on' field for each platform
+    filtered_posts = {platform.lower(): [post for post in all_posts if post.posted_on.get(platform.lower())] for platform in platform_names}
+    
+    return render_template("posts.html", all_posts=all_posts, archive_posts=archive_posts, filtered_posts=filtered_posts, platform_names=platform_names )
 
 @app.route("/delete_post", methods=['POST'])
 @login_required
@@ -321,15 +265,10 @@ def can_update_or_delete(post_id):
     success = True
     selected_platforms = []
     post = Posts.query.get_or_404(post_id)
-    for platform in platforms:
-        if getattr(post, f'posted_on_{platform}'):
-            platform_model = PLATFORM_MODELS[platform]
-            platform_post = platform_model.query.filter_by(original_post_id=post_id).first()
-            form = PostForm()
-            if platform_post:
-                tokens_available = getattr(form, f'{platform}_tokens_available')
-                validation_function = getattr(form, f'{platform}_tokens_validation')
-                selected_platforms.append(platform)
-                if not tokens_available() or not validation_function():
-                    success = False
+    for platform, is_posted in post.posted_on.items():
+        if  is_posted:
+            platform_class = globals()[f'{platform.capitalize()}']
+            selected_platforms.append(platform.capitalize())
+            if not platform_class.tokens_available() or not platform_class.tokens_validation():
+                success = False
     return success, selected_platforms

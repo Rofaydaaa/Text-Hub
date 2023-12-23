@@ -29,21 +29,21 @@
                     {% endif %}
                 </div>
                 <div class="form-group mb-4">
-                    <div class="form-check form-switch">
-                        <i class="fab fa-facebook fa text-primary"></i>
-                        {{ form.select_fb.label(class="form-check-label") }}
-                        {{ form.select_fb(class="form-check-input", disabled=edit_mode) }}
-                    </div>
-                    <div class="form-check form-switch">
-                        <i class="fab fa-twitter fa text-primary"></i>
-                        {{ form.select_twitter.label(class="form-check-label") }}
-                        {{ form.select_twitter(class="form-check-input", disabled=edit_mode) }}
-                    </div>
+                    {% for platform_form in form.platforms %}
+                        {{ platform_form.hidden_tag() }}
+                        <div class="form-check form-switch">
+                            <i class="fab fa-{{ platform_form['name'].data.lower() }} fa text-primary"></i>
+                            {{ platform_form['name'].data }}
+                            {{ platform_form.select(class="form-check-input", disabled=edit_mode) }}
+                        </div>
+                    {% endfor %}
                 </div>
             </fieldset>
             <div class="form-group text-end">
                 {{ form.submit(class="btn btn-primary", value="Update Post" if edit_mode else "Post") }}
-                {{ form.archive(class="btn btn-primary") }}
+                {% if not archived %}
+                    {{ form.archive(class="btn btn-primary") }}
+                {% endif %}
                 <a href="{{ url_for('profile') }}" class="btn btn-secondary">Configure Platforms</a>
             </div>
         </form>

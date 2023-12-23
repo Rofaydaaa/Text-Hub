@@ -1,6 +1,7 @@
 from datetime import datetime
 from texthub import db, login_manager
 from flask_login import UserMixin
+from sqlalchemy.dialects.postgresql import JSON
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -11,12 +12,12 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    token_fb = db.Column(db.String(60), nullable=True)
-    page_id_fb = db.Column(db.String(60), nullable=True)
-    consumer_key_twitter = db.Column(db.String(60), nullable=True)
-    consumer_secret_twitter = db.Column(db.String(60), nullable=True)
-    access_token_twitter = db.Column(db.String(60), nullable=True)
-    access_secret_twitter = db.Column(db.String(60), nullable=True)
+    token_facebook = db.Column(db.String(255), nullable=True)
+    page_id_facebook = db.Column(db.String(255), nullable=True)
+    consumer_key_twitter = db.Column(db.String(255), nullable=True)
+    consumer_secret_twitter = db.Column(db.String(255), nullable=True)
+    access_token_twitter = db.Column(db.String(255), nullable=True)
+    access_secret_twitter = db.Column(db.String(255), nullable=True)
 
     posts = db.relationship('Posts', backref='author', lazy=True, order_by="desc(Posts.date_posted)")
     archive_posts = db.relationship('ArchivePosts', backref='author', lazy=True, order_by="desc(ArchivePosts.date_archived)")
@@ -30,8 +31,7 @@ class Posts(db.Model):
     body = db.Column(db.Text)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, default=datetime.utcnow)
-    posted_on_fb = db.Column(db.Boolean, default=False)
-    posted_on_twitter = db.Column(db.Boolean, default=False)
+    posted_on = db.Column(JSON, default={})
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
@@ -56,7 +56,7 @@ class FacebookPost(db.Model):
     platform_post_id = db.Column(db.String(255), nullable=False)
     
     def __repr__(self):
-        return f"FacebookPost('{self.fb_post_id}')"
+        return f"FacebookPost('{self.facebook_post_id}')"
 
 
 class TwitterPost(db.Model):

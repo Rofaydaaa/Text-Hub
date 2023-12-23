@@ -19,12 +19,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-tab="archive">Archived</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-tab="facebook">Facebook</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" data-tab="twitter">Twitter</a>
-                    </li>
+                    {% for platform in platform_names %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-tab="{{ platform.lower() }}">{{ platform }}</a>
+                        </li>
+                    {% endfor %}
                 </ul>
                 {% for post in all_posts %}
                     <div class="card mb-3 bg-white shadow" data-category="all">
@@ -48,9 +47,12 @@
                                 {{ post.body | safe }}
                             </div>
                             <p class="card-text">
-                                <b>Posted on: </b> 
-                                {% if post.posted_on_fb %} <i class="fab fa-facebook-square fa-lg text-primary"></i> {% endif %}
-                                {% if post.posted_on_twitter %} <i class="fab fa-twitter-square fa-lg text-info"></i> {% endif %}
+                                <b>Posted on: </b>
+                                {% for platform, is_posted in post.posted_on.items() %}
+                                    {% if is_posted %}
+                                        <i class="fab fa-{{ platform }}-square fa-lg text-primary"></i>
+                                    {% endif %}
+                                {% endfor %}
                             </p>
                             <p class="card-text">
                                 <small><b>At: </b>{{ post.date_posted.strftime('%Y-%m-%d %H:%M:%S') }}</small>
@@ -87,74 +89,44 @@
                     </div>
                 {% endfor %}
 
-                {% for post in fb_posts %}
-                    <div class="card mb-3 bg-white shadow" data-category="facebook">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h5 class="card-title">{{ post.title }}</h5>
-                                <div>
-                                    <a href="{{ url_for('editor', post_id=post.id, edited=True) }}" style="text-decoration: none;">
-                                        <i class="fas fa-edit text-secondary" style="margin-right: 10px;"></i>
-                                    </a>
-                                    <a href="#" class="deleteButton" data-toggle="modal" data-target="#deleteConfirmationModal" data-id="{{ post.id }}"  data-type="post" style="text-decoration: none;">
-                                        <i class="fas fa-trash-alt text-danger ml-2"></i>
-                                    </a>
+                {% for platform, posts in filtered_posts.items() %}
+                    {% for post in posts %}
+                        <div class="card mb-3 bg-white shadow" data-category="{{ platform }}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <h5 class="card-title">{{ post.title }}</h5>
+                                    <div>
+                                        <a href="{{ url_for('editor', post_id=post.id, edited=True) }}" style="text-decoration: none;">
+                                            <i class="fas fa-edit text-secondary" style="margin-right: 10px;"></i>
+                                        </a>
+                                        <a href="#" class="deleteButton" data-toggle="modal" data-target="#deleteConfirmationModal" data-id="{{ post.id }}"  data-type="post" style="text-decoration: none;">
+                                            <i class="fas fa-trash-alt text-danger ml-2"></i>
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="truncated-text" data-post-id="{{ post.id }}">
-                                {{ post.body[:20] | safe }}...
-                                <a href="#" class="seeMoreLink" data-post-id="{{ post.id }}"><small>see more</small></a>
-                            </div>
-                            <div class="d-none full-text" data-post-id="{{ post.id }}">
-                                {{ post.body | safe }}
-                            </div>
-                            <p class="card-text">
-                                <b>Posted on: </b> 
-                                {% if post.posted_on_fb %} <i class="fab fa-facebook-square fa-lg text-primary"></i> {% endif %}
-                                {% if post.posted_on_twitter %} <i class="fab fa-twitter-square fa-lg text-info"></i> {% endif %}
-                            </p>
-                            <p class="card-text">
-                                <small><b>At: </b>{{ post.date_posted.strftime('%Y-%m-%d %H:%M:%S') }}</small>
-                                <br>
-                                <small><b>Last Update at: </b>{{ post.date_updated.strftime('%Y-%m-%d %H:%M:%S') }}</small>
-                            </p>
-                        </div>
-                    </div>
-                {% endfor %}
-
-                {% for post in twitter_posts %}
-                    <div class="card mb-3 bg-white shadow" data-category="twitter">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <h5 class="card-title">{{ post.title }}</h5>
-                                <div>
-                                    <a href="{{ url_for('editor', post_id=post.id, edited=True) }}" style="text-decoration: none;">
-                                        <i class="fas fa-edit text-secondary" style="margin-right: 10px;"></i>
-                                    </a>
-                                    <a href="#" class="deleteButton" data-toggle="modal" data-target="#deleteConfirmationModal" data-id="{{ post.id }}" data-type="post" style="text-decoration: none;">
-                                        <i class="fas fa-trash-alt text-danger ml-2"></i>
-                                    </a>
+                                <div class="truncated-text" data-post-id="{{ post.id }}">
+                                    {{ post.body[:20] | safe }}...
+                                    <a href="#" class="seeMoreLink" data-post-id="{{ post.id }}"><small>see more</small></a>
                                 </div>
+                                <div class="d-none full-text" data-post-id="{{ post.id }}">
+                                    {{ post.body | safe }}
+                                </div>
+                                <p class="card-text">
+                                    <b>Posted on: </b> 
+                                    {% for platform, is_posted in post.posted_on.items() %}
+                                        {% if is_posted %}
+                                            <i class="fab fa-{{ platform }}-square fa-lg text-primary"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </p>
+                                <p class="card-text">
+                                    <small><b>At: </b>{{ post.date_posted.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                    <br>
+                                    <small><b>Last Update at: </b>{{ post.date_updated.strftime('%Y-%m-%d %H:%M:%S') }}</small>
+                                </p>
                             </div>
-                            <div class="truncated-text" data-post-id="{{ post.id }}">
-                                {{ post.body[:20] | safe }}...
-                                <a href="#" class="seeMoreLink" data-post-id="{{ post.id }}"><small>see more</small></a>
-                            </div>
-                            <div class="d-none full-text" data-post-id="{{ post.id }}">
-                                {{ post.body | safe }}
-                            </div>
-                            <p class="card-text">
-                                <b>Posted on: </b> 
-                                {% if post.posted_on_fb %} <i class="fab fa-facebook-square fa-lg text-primary"></i> {% endif %}
-                                {% if post.posted_on_twitter %} <i class="fab fa-twitter-square fa-lg text-info"></i> {% endif %}
-                            </p>
-                            <p class="card-text">
-                                <small><b>At: </b>{{ post.date_posted.strftime('%Y-%m-%d %H:%M:%S') }}</small>
-                                <br>
-                                <small><b>Last Update at: </b>{{ post.date_updated.strftime('%Y-%m-%d %H:%M:%S') }}</small>
-                            </p>
                         </div>
-                    </div>
+                    {% endfor %}
                 {% endfor %}
 
             </div>

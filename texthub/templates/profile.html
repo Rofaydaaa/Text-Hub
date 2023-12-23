@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block head %}
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
     <!-- CSS file -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
 {% endblock head %}
@@ -86,53 +86,31 @@
                             <form method="POST" action="" class="pt-4">
                                 {{ form_platform.hidden_tag() }}
                                 <fieldset class="form-group">
-                                    <div class="d-flex align-items-center justify-content-between mb-4">
-                                        <i class="fab fa-facebook fa-3x text-primary"></i>
-                                        <div style="margin-right: 30px; margin-left: 15px;" class="form-check form-switch">
-                                            {{ form_platform.select_fb(class="form-check-input", id="select-platform-fb") }}
-                                            {{ form_platform.select_fb.label(class="form-check-label small", for="select-platform-fb") }}
+                                    {% for platform_name, platform_form in form_platform.platform_forms.items() %}
+                                        <div class="d-flex align-items-center justify-content-between mb-4">
+                                            <i class="fab fa-{{ platform_name }} fa-3x text-primary"></i>
+                                            <div style="margin-right: 30px; margin-left: 15px;" class="form-check form-switch">
+                                                {% set checkbox_id = "select-platform-" + platform_name %}
+                                                {{ platform_form.select(class="form-check-input", id=checkbox_id) }}
+                                                {{ platform_form.select.label(class="form-check-label small", for=checkbox_id) }}
+                                            </div>
+
+                                            <!-- Input field for tokens -->
+                                            {% if platform_form.select.data %}
+                                                <div id="token-container-{{ platform_name }}" style="display: block;">
+                                            {% else %}
+                                                <div id="token-container-{{ platform_name }}" style="display: none;">
+                                            {% endif %}
+                                                {% for field in platform_form %}
+                                                    {% if not loop.first and not loop.last %}
+                                                        {{ field.label(class="form-label small") }}
+                                                        {{ field(class="form-control form-control-sm") }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
                                         </div>
-
-                                        <!-- Input field for Facebook token -->
-                                        {% if form_platform.select_fb.data %}
-                                            <div id="token-container-fb" style="display: block;">
-                                        {% else %}
-                                            <div id="token-container-fb" style="display: none;">
-                                        {% endif %}
-                                            {{ form_platform.token_fb.label(class="form-label small") }}
-                                            {{ form_platform.token_fb(class="form-control form-control-sm") }}
-
-                                            {{ form_platform.page_id_fb.label(class="form-label small") }}
-                                            {{ form_platform.page_id_fb(class="form-control form-control-sm") }}
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex align-items-center justify-content-between mb-4">
-                                        <i class="fab fa-twitter fa-3x text-primary"></i>
-                                        <div style="margin-right: 30px;margin-left: 15px;" class="form-check form-switch">
-                                            {{ form_platform.select_twitter(class="form-check-input mr-2", id="select-platform-twitter") }}
-                                            {{ form_platform.select_twitter.label(class="form-check-label small", for="select-platform-twitter") }}
-                                        </div>
-
-                                        <!-- Input field for Twitter token -->
-                                        {% if form_platform.select_twitter.data %}
-                                            <div id="token-container-twitter" style="display: block;">
-                                        {% else %}
-                                            <div id="token-container-twitter" style="display: none;">
-                                        {% endif %}
-                                            {{ form_platform.consumer_key_twitter.label(class="form-label small") }}
-                                            {{ form_platform.consumer_key_twitter(class="form-control form-control-sm") }}
-
-                                            {{ form_platform.consumer_secret_twitter.label(class="form-label small") }}
-                                            {{ form_platform.consumer_secret_twitter(class="form-control form-control-sm") }}
-                                            
-                                            {{ form_platform.access_token_twitter.label(class="form-label small") }}
-                                            {{ form_platform.access_token_twitter(class="form-control form-control-sm") }}
-                                            
-                                            {{ form_platform.access_secret_twitter.label(class="form-label small") }}
-                                            {{ form_platform.access_secret_twitter(class="form-control form-cosmallntrol-sm") }}
-                                        </div>
-                                    </div>
+                                    {% endfor %}
+                                </fieldset>
                                     <div class="text-end" style="margin-right: 30px;">
                                         {{ form_platform.submit(class="btn btn-primary") }}
                                     </div>
@@ -202,7 +180,7 @@
             });
         }
 
-        setupTokenContainer('select-platform-fb', 'token-container-fb');
+        setupTokenContainer('select-platform-facebook', 'token-container-facebook');
         setupTokenContainer('select-platform-twitter', 'token-container-twitter');
         </script>
 {% endblock content %}
