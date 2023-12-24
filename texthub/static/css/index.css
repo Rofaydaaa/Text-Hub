@@ -58,3 +58,34 @@ section.features .description p {
     max-width: 284px;
     margin: 0 auto;
 }
+
+@media screen and (max-width: 1024px) {
+    section.hero .text {
+        font-size: 32px;
+        line-height: 48px;
+    }
+    section.features .text-header h3 {
+        font-size: 32px;
+        line-height: 48px;
+    }
+    section.hero img {
+        height: 80%;
+    }
+}
+
+@media (max-width: 600px) {
+    section.hero {
+        margin: 10px;
+    }
+    section.hero .text {
+        font-size: 28px;
+        line-height: 44px;
+    }
+    section.features .text-header h3 {
+        font-size: 28px;
+        line-height: 42px;
+    }
+    section.hero img {
+        display: none;
+    }
+}
