@@ -1,6 +1,9 @@
 # Ignore .txt files
 *.txt
 
+# Except requirements.txt
+!requirements.txt
+
 # Flask-related files
 *.cfg
 __pycache__/
