@@ -9,10 +9,9 @@ from os import environ
 
 app = Flask(__name__)
 
-
-app.config['SECRET_KEY'] = 'Random charachter'
+app.config['SECRET_KEY'] = environ.get('SECRET_KEY', 'Random charachter')
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DB_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Disable modification tracking as it can cause performance issues
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 

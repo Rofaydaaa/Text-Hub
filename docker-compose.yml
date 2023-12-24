@@ -7,8 +7,7 @@ services:
     build: .
     ports:
       - "5000:5000"
-    environment:
-      - DB_URL=postgresql://postgres:postgres@flask_db:5432/postgres
+    env_file: .env
     depends_on:
       - flask_db
   flask_db:
@@ -16,10 +15,7 @@ services:
     image: postgres:12
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
+    env_file: .env
     volumes:
       - pgdata:/var/lib/postgresql/data
 
