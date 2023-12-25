@@ -28,12 +28,12 @@ Running Locally<br>
 
 #### Clone the repository:
 ```bash
-git clone https://github.com/your-username/your-repository.git
+git clone https://github.com/your-username/your-repository.git](https://github.com/Rofaydaaa/Text-Hub.git
 ```
 #### Navigate to the project directory:
 
 ```bash
-cd your-repository
+cd Text-Hub
 ```
 ### Create a .env file and add the following configuration:
 ```env
